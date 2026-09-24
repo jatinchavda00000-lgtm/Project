@@ -66,7 +66,7 @@ CREATE TABLE retail_sales (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 -- ============================================
--- 4. INDEXES (query fast karne ke liye)
+-- 4. INDEXES (for faster query performance)
 -- ============================================
 CREATE INDEX idx_order_id ON retail_sales(order_id);
 CREATE INDEX idx_order_date ON retail_sales(order_date);
