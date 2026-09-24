@@ -5,8 +5,8 @@
 # ============================================
 
 """
-Ye file naye features (columns) banati hai jo analysis aur dashboard
-ke liye useful hain. Koi API nahi.
+This file creates new features (columns) that are useful for analysis
+and the dashboard. No API.
 
 New Features:
 - Profit_Margin          : Profit / Sales * 100
@@ -15,8 +15,8 @@ New Features:
 - Discount_Band          : Low / Medium / High / Very High
 - Profit_Status          : Profit / Loss
 - Order_Size             : Small / Medium / Large
-- Is_Weekend             : Weekend par order hua ya nahi
-- Season                : Winter / Summer / Monsoon / Post-Monsoon
+- Is_Weekend             : Whether order was on a weekend
+- Season                 : Winter / Summer / Monsoon / Post-Monsoon
 - Quarter_Label          : Q1, Q2, Q3, Q4
 - Year_Month             : 'YYYY-MM'
 - Customer_Type          : New / Repeat
@@ -56,7 +56,7 @@ logger = logging.getLogger(__name__)
 def add_profit_margin(df: pd.DataFrame) -> pd.DataFrame:
     """
     Profit_Margin = (Profit / Sales) * 100
-    Sales 0 ho to NaN, baad me 0 se fill.
+    If Sales is 0, set to NaN, then fill with 0 later.
     """
     df = df.copy()
     df["Profit_Margin"] = np.where(
@@ -126,7 +126,7 @@ def add_discount_amount(df: pd.DataFrame) -> pd.DataFrame:
 
 def add_discount_band(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Discount ko band me divide karta hai:
+    Divides Discount into bands:
         0%          -> No Discount
         1-10%       -> Low
         11-20%      -> Medium
@@ -178,7 +178,7 @@ def add_profit_status(df: pd.DataFrame) -> pd.DataFrame:
 
 def add_order_size(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Quantity ke hisaab se Order_Size:
+    Order_Size based on Quantity:
         1-2  -> Small
         3-5  -> Medium
         6-10 -> Large
@@ -208,7 +208,7 @@ def add_weekend_flag(df: pd.DataFrame) -> pd.DataFrame:
     """
     Is_Weekend:
         True  -> Saturday / Sunday
-        False -> Baaki din
+        False -> Other days
     """
     df = df.copy()
     if COL_ORDER_DATE in df.columns:
@@ -225,7 +225,7 @@ def add_weekend_flag(df: pd.DataFrame) -> pd.DataFrame:
 
 def add_season(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Month ke hisaab se Indian season:
+    Indian season based on month:
         12, 1, 2   -> Winter
         3, 4, 5    -> Summer
         6, 7, 8, 9 -> Monsoon
@@ -271,7 +271,7 @@ def add_quarter_label(df: pd.DataFrame) -> pd.DataFrame:
 # ============================================
 
 def add_year_month(df: pd.DataFrame) -> pd.DataFrame:
-    """Year_Month: 'YYYY-MM' string (time series ke liye)"""
+    """Year_Month: 'YYYY-MM' string (for time series)"""
     df = df.copy()
     if COL_ORDER_DATE in df.columns:
         df["Year_Month"] = df[COL_ORDER_DATE].dt.strftime("%Y-%m")
@@ -288,8 +288,8 @@ def add_year_month(df: pd.DataFrame) -> pd.DataFrame:
 def add_customer_type(df: pd.DataFrame) -> pd.DataFrame:
     """
     Customer_Type:
-        Agar Customer_Name ek hi baar aaya -> New
-        Agar multiple baar aaya -> Repeat
+        If Customer_Name appears only once -> New
+        If appears multiple times -> Repeat
     """
     df = df.copy()
 
@@ -311,8 +311,8 @@ def add_customer_type(df: pd.DataFrame) -> pd.DataFrame:
 
 def engineer_features(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Saare feature engineering steps ek saath chalata hai.
-    Order important hai - dependencies ke hisaab se.
+    Runs all feature engineering steps together.
+    Order is important due to dependencies.
     """
     logger.info("=" * 50)
     logger.info("STARTING FEATURE ENGINEERING")

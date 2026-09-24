@@ -5,17 +5,17 @@
 # ============================================
 
 """
-Ye file data load karne ke saare functions rakhti hai.
-Data source sirf CSV / Excel / SQL dump hai - koi API nahi.
+This file contains all data loading functions.
+Data source is only CSV / Excel / SQL dump - no API.
 
 Functions:
-- load_csv()          : CSV file load karna
-- load_excel()        : Excel file load karna
-- load_from_sql()     : SQL database se load karna
-- save_to_csv()       : DataFrame ko CSV me save karna
-- save_to_sql()       : DataFrame ko SQL table me save karna
-- get_data_info()     : Data ka summary print karna
-- preview_data()      : Data ka head/tail dekhna
+- load_csv()          : Load CSV file
+- load_excel()        : Load Excel file
+- load_from_sql()     : Load from SQL database
+- save_to_csv()       : Save DataFrame to CSV
+- save_to_sql()       : Save DataFrame to SQL table
+- get_data_info()     : Print summary of data
+- preview_data()      : View head/tail of data
 """
 
 import logging
@@ -52,22 +52,22 @@ logger = logging.getLogger(__name__)
 
 def load_csv(file_path: Path | str = RAW_DATA_FILE) -> pd.DataFrame:
     """
-    CSV file ko pandas DataFrame me load karta hai.
+    Loads a CSV file into a pandas DataFrame.
 
     Args:
-        file_path: CSV file ka path
+        file_path: Path to the CSV file
 
     Returns:
         pd.DataFrame: Loaded data
 
     Raises:
-        FileNotFoundError: agar file exist nahi karti
-        pd.errors.EmptyDataError: agar file empty hai
+        FileNotFoundError: if file does not exist
+        pd.errors.EmptyDataError: if file is empty
     """
     file_path = Path(file_path)
 
     if not file_path.exists():
-        logger.error(f"CSV file nahi mili: {file_path}")
+        logger.error(f"CSV file not found: {file_path}")
         raise FileNotFoundError(f"File not found: {file_path}")
 
     try:
@@ -75,10 +75,10 @@ def load_csv(file_path: Path | str = RAW_DATA_FILE) -> pd.DataFrame:
         logger.info(f"CSV loaded: {file_path.name} | Shape: {df.shape}")
         return df
     except pd.errors.EmptyDataError:
-        logger.error(f"CSV file empty hai: {file_path}")
+        logger.error(f"CSV file is empty: {file_path}")
         raise
     except Exception as e:
-        logger.error(f"CSV load karte waqt error: {e}")
+        logger.error(f"Error while loading CSV: {e}")
         raise
 
 
@@ -91,11 +91,11 @@ def load_excel(
     sheet_name: str | int = 0,
 ) -> pd.DataFrame:
     """
-    Excel file ko DataFrame me load karta hai.
+    Loads an Excel file into a DataFrame.
 
     Args:
-        file_path: Excel file ka path (.xlsx / .xls)
-        sheet_name: Sheet name ya index (default 0 = pehli sheet)
+        file_path: Path to the Excel file (.xlsx / .xls)
+        sheet_name: Sheet name or index (default 0 = first sheet)
 
     Returns:
         pd.DataFrame: Loaded data
@@ -103,7 +103,7 @@ def load_excel(
     file_path = Path(file_path)
 
     if not file_path.exists():
-        logger.error(f"Excel file nahi mili: {file_path}")
+        logger.error(f"Excel file not found: {file_path}")
         raise FileNotFoundError(f"File not found: {file_path}")
 
     try:
@@ -114,7 +114,7 @@ def load_excel(
         )
         return df
     except Exception as e:
-        logger.error(f"Excel load karte waqt error: {e}")
+        logger.error(f"Error while loading Excel: {e}")
         raise
 
 
@@ -127,7 +127,7 @@ def load_from_sql(
     connection_string: str = ACTIVE_DB_CONNECTION,
 ) -> pd.DataFrame:
     """
-    SQL database se data load karta hai.
+    Loads data from a SQL database.
 
     Args:
         query: SQL SELECT query
@@ -161,12 +161,12 @@ def save_to_csv(
     index: bool = False,
 ) -> None:
     """
-    DataFrame ko CSV file me save karta hai.
+    Saves a DataFrame to a CSV file.
 
     Args:
         df: DataFrame
         file_path: output CSV path
-        index: index column save karna hai ya nahi
+        index: whether to save the index column
     """
     file_path = Path(file_path)
     file_path.parent.mkdir(parents=True, exist_ok=True)
@@ -190,7 +190,7 @@ def save_to_sql(
     if_exists: str = "replace",
 ) -> None:
     """
-    DataFrame ko SQL table me save karta hai.
+    Saves a DataFrame to a SQL table.
 
     Args:
         df: DataFrame
@@ -220,7 +220,7 @@ def save_to_sql(
 
 def get_data_info(df: pd.DataFrame, name: str = "DataFrame") -> dict:
     """
-    Data ka basic summary return karta hai.
+    Returns a basic summary of the data.
 
     Args:
         df: DataFrame
@@ -262,12 +262,12 @@ def preview_data(
     name: str = "DataFrame",
 ) -> None:
     """
-    Data ka head, tail, aur random sample print karta hai.
-    Terminal me quick check ke liye useful.
+    Prints the head, tail, and a random sample of the data.
+    Useful for a quick check in the terminal.
 
     Args:
         df: DataFrame
-        rows: kitni rows dikhani hain
+        rows: number of rows to show
         name: label
     """
     print("=" * 70)
@@ -305,11 +305,11 @@ def preview_data(
 # ============================================
 
 def load_clean_data() -> pd.DataFrame:
-    """Processed clean CSV load karta hai (dashboard/analysis ke liye)."""
+    """Loads the processed clean CSV (for dashboard/analysis)."""
     if not Path(CLEAN_DATA_FILE).exists():
         logger.warning(
-            f"Clean data nahi mila: {CLEAN_DATA_FILE}. "
-            f"Pehle data_cleaning.py run karo."
+            f"Clean data not found: {CLEAN_DATA_FILE}. "
+            f"Run data_cleaning.py first."
         )
         raise FileNotFoundError(
             f"Clean data file not found: {CLEAN_DATA_FILE}"
@@ -326,7 +326,7 @@ if __name__ == "__main__":
     print("DATA LOADER - SELF TEST")
     print("=" * 70)
 
-    # Sample DataFrame bana ke test karo
+    # Create a sample DataFrame for testing
     sample_df = pd.DataFrame(
         {
             "Order_ID": ["ORD001", "ORD002", "ORD003"],

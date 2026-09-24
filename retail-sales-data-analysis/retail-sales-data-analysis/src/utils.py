@@ -5,33 +5,33 @@
 # ============================================
 
 """
-Ye file project ke saare helper/utility functions rakhti hai.
-Koi API nahi. Sirf reusable code.
+This file contains all helper/utility functions for the project.
+No API. Only reusable code.
 
 Utility Functions:
-- ensure_dir()             : Folder create karna (agar nahi hai)
-- file_exists()            : File check
+- ensure_dir()             : Create folder (if not exists)
+- file_exists()            : Check file
 - get_timestamp()          : Current timestamp string
-- print_section()          : Sundar header print
-- print_dict()             : Dictionary sundar tarike se print
-- format_currency()        : Rs. format karna
+- print_section()          : Print nice header
+- print_dict()             : Print dictionary nicely
+- format_currency()        : Format as Rs.
 - format_number()          : Comma separated number
-- safe_divide()            : Division by zero se bachna
+- safe_divide()            : Avoid division by zero
 - human_readable_size()    : Bytes -> KB/MB/GB
 - Timer (class)            : Code timing context manager
 - timed()                  : Decorator for timing functions
 - save_json()              : Dict -> JSON file
 - load_json()              : JSON file -> Dict
-- save_text()              : Text file save
-- read_text()              : Text file read
+- save_text()              : Save text file
+- read_text()              : Read text file
 - df_to_excel()            : Multiple DataFrames -> Excel (multi-sheet)
-- list_files()             : Folder ke files list
-- chunk_dataframe()        : DataFrame ko chunks me todna
-- memory_usage()           : DataFrame ki memory
-- df_summary_str()         : DataFrame ka short summary string
-- safe_to_numeric()        : Column ko safely numeric banana
-- clean_column_for_sql()   : Column name SQL-safe banana
-- retry()                  : Function ko retry karna on exception
+- list_files()             : List files in folder
+- chunk_dataframe()        : Split DataFrame into chunks
+- memory_usage()           : DataFrame memory
+- df_summary_str()         : Short summary string of DataFrame
+- safe_to_numeric()        : Safely convert column to numeric
+- clean_column_for_sql()   : Make column name SQL-safe
+- retry()                  : Retry function on exception
 """
 
 import functools
@@ -55,7 +55,7 @@ import pandas as pd
 
 def get_logger(name: str, level: int = logging.INFO) -> logging.Logger:
     """
-    Standard logger banata hai.
+    Creates a standard logger.
 
     Args:
         name: logger name (usually __name__)
@@ -86,7 +86,7 @@ logger = get_logger(__name__)
 
 def ensure_dir(path: Path | str) -> Path:
     """
-    Folder create karta hai agar exist nahi karta.
+    Creates a folder if it doesn't exist.
 
     Args:
         path: folder path
@@ -100,7 +100,7 @@ def ensure_dir(path: Path | str) -> Path:
 
 
 def file_exists(path: Path | str) -> bool:
-    """File exist karti hai ya nahi."""
+    """Check if file exists."""
     return Path(path).is_file()
 
 
@@ -110,12 +110,12 @@ def list_files(
     recursive: bool = False,
 ) -> list:
     """
-    Folder ke files list karta hai.
+    Lists files in a folder.
 
     Args:
         folder: folder path
         pattern: glob pattern (e.g., '*.csv')
-        recursive: subfolders me bhi dhundhna
+        recursive: search in subfolders too
 
     Returns:
         list of Path objects
@@ -129,7 +129,7 @@ def list_files(
 
 
 def delete_file(path: Path | str) -> bool:
-    """File delete karta hai (agar exist karti hai)."""
+    """Deletes a file (if it exists)."""
     p = Path(path)
     if p.exists() and p.is_file():
         p.unlink()
@@ -138,7 +138,7 @@ def delete_file(path: Path | str) -> bool:
 
 
 def copy_file(src: Path | str, dst: Path | str) -> Path:
-    """File ko ek jagah se doosri jagah copy karta hai."""
+    """Copies a file from one location to another."""
     src = Path(src)
     dst = Path(dst)
     ensure_dir(dst.parent)
@@ -151,7 +151,7 @@ def copy_file(src: Path | str, dst: Path | str) -> Path:
 # ============================================
 
 def get_timestamp(fmt: str = "%Y%m%d_%H%M%S") -> str:
-    """Current timestamp string return karta hai."""
+    """Returns current timestamp string."""
     return datetime.now().strftime(fmt)
 
 
@@ -162,7 +162,7 @@ def get_date_str(fmt: str = "%Y-%m-%d") -> str:
 
 class Timer:
     """
-    Context manager - code block ka time measure karta hai.
+    Context manager - measures time of a code block.
 
     Usage:
         with Timer("Data load"):
@@ -188,7 +188,7 @@ class Timer:
 
 def timed(func: Callable) -> Callable:
     """
-    Decorator - function ka execution time log karta hai.
+    Decorator - logs execution time of a function.
 
     Usage:
         @timed
@@ -210,14 +210,14 @@ def timed(func: Callable) -> Callable:
 # ============================================
 
 def print_section(title: str, width: int = 70, char: str = "=") -> None:
-    """Sundar section header print karta hai."""
+    """Prints a nice section header."""
     print(char * width)
     print(title.center(width))
     print(char * width)
 
 
 def print_dict(data: dict, indent: int = 2, title: str | None = None) -> None:
-    """Dictionary ko sundar tarike se print karta hai."""
+    """Prints dictionary nicely."""
     if title:
         print_section(title)
     pad = " " * indent
@@ -231,7 +231,7 @@ def print_dict(data: dict, indent: int = 2, title: str | None = None) -> None:
 
 
 def print_dataframe(df: pd.DataFrame, title: str | None = None, rows: int = 10) -> None:
-    """DataFrame ko sundar tarike se print karta hai."""
+    """Prints DataFrame nicely."""
     if title:
         print_section(title)
     print(f"Shape: {df.shape}")
@@ -246,7 +246,7 @@ def print_dataframe(df: pd.DataFrame, title: str | None = None, rows: int = 10) 
 # ============================================
 
 def format_currency(value: float, symbol: str = "Rs.") -> str:
-    """Number ko currency format me dikhata hai."""
+    """Shows number in currency format."""
     try:
         return f"{symbol} {value:,.2f}"
     except (ValueError, TypeError):
@@ -254,7 +254,7 @@ def format_currency(value: float, symbol: str = "Rs.") -> str:
 
 
 def format_number(value: float, decimals: int = 2) -> str:
-    """Number ko comma-separated format me dikhata hai."""
+    """Shows number in comma-separated format."""
     try:
         return f"{value:,.{decimals}f}"
     except (ValueError, TypeError):
@@ -262,7 +262,7 @@ def format_number(value: float, decimals: int = 2) -> str:
 
 
 def format_percent(value: float, decimals: int = 2) -> str:
-    """Number ko percentage format me dikhata hai."""
+    """Shows number in percentage format."""
     try:
         return f"{value:.{decimals}f}%"
     except (ValueError, TypeError):
@@ -270,7 +270,7 @@ def format_percent(value: float, decimals: int = 2) -> str:
 
 
 def human_readable_size(num_bytes: float) -> str:
-    """Bytes ko KB / MB / GB me convert karta hai."""
+    """Converts bytes to KB / MB / GB."""
     for unit in ["B", "KB", "MB", "GB", "TB"]:
         if abs(num_bytes) < 1024.0:
             return f"{num_bytes:.2f} {unit}"
@@ -283,7 +283,7 @@ def human_readable_size(num_bytes: float) -> str:
 # ============================================
 
 def safe_divide(a: float, b: float, default: float = 0.0) -> float:
-    """Division by zero se safe."""
+    """Safe from division by zero."""
     try:
         if b == 0 or pd.isna(b):
             return default
@@ -308,7 +308,7 @@ def safe_to_numeric(series: pd.Series, default: float = 0.0) -> pd.Series:
     return result.fillna(default).astype(float)
 
 def percent_change(old: float, new: float) -> float:
-    """Percentage change calculate karta hai."""
+    """Calculates percentage change."""
     if old == 0:
         return 0.0
     return ((new - old) / abs(old)) * 100
@@ -319,7 +319,7 @@ def percent_change(old: float, new: float) -> float:
 # ============================================
 
 def save_json(data: dict | list, path: Path | str, indent: int = 2) -> Path:
-    """Dict/List ko JSON file me save karta hai."""
+    """Saves dict/list to JSON file."""
     path = Path(path)
     ensure_dir(path.parent)
     with open(path, "w", encoding="utf-8") as f:
@@ -329,7 +329,7 @@ def save_json(data: dict | list, path: Path | str, indent: int = 2) -> Path:
 
 
 def load_json(path: Path | str) -> dict | list:
-    """JSON file load karta hai."""
+    """Loads JSON file."""
     path = Path(path)
     if not path.exists():
         raise FileNotFoundError(f"JSON not found: {path}")
@@ -338,7 +338,7 @@ def load_json(path: Path | str) -> dict | list:
 
 
 def save_text(text: str, path: Path | str) -> Path:
-    """Text file save karta hai."""
+    """Saves text file."""
     path = Path(path)
     ensure_dir(path.parent)
     with open(path, "w", encoding="utf-8") as f:
@@ -348,7 +348,7 @@ def save_text(text: str, path: Path | str) -> Path:
 
 
 def read_text(path: Path | str) -> str:
-    """Text file read karta hai."""
+    """Reads text file."""
     path = Path(path)
     if not path.exists():
         raise FileNotFoundError(f"Text file not found: {path}")
@@ -366,12 +366,12 @@ def df_to_excel(
     index: bool = False,
 ) -> Path:
     """
-    Multiple DataFrames ko ek Excel file me multi-sheet save karta hai.
+    Saves multiple DataFrames to one Excel file as multi-sheet.
 
     Args:
         sheets: {'SheetName': DataFrame, ...}
         path: output .xlsx path
-        index: index save karna hai ya nahi
+        index: whether to save index
 
     Returns:
         Path
@@ -401,13 +401,13 @@ def df_to_excel(
 # ============================================
 
 def memory_usage(df: pd.DataFrame) -> str:
-    """DataFrame ki memory usage return karta hai."""
+    """Returns DataFrame memory usage."""
     mb = df.memory_usage(deep=True).sum() / (1024 * 1024)
     return human_readable_size(mb * 1024 * 1024)
 
 
 def df_summary_str(df: pd.DataFrame, name: str = "DataFrame") -> str:
-    """DataFrame ka short summary string."""
+    """Short summary string of DataFrame."""
     return (
         f"{name}: {df.shape[0]:,} rows x {df.shape[1]} cols | "
         f"Missing: {int(df.isnull().sum().sum())} | "
@@ -421,7 +421,7 @@ def chunk_dataframe(
     chunk_size: int = 1000,
 ) -> Iterator[pd.DataFrame]:
     """
-    DataFrame ko chunks me todta hai (bade data ke liye).
+    Splits DataFrame into chunks (for large data).
 
     Yields:
         pd.DataFrame chunks
@@ -432,7 +432,7 @@ def chunk_dataframe(
 
 
 def clean_column_for_sql(name: str) -> str:
-    """Column name ko SQL-safe banata hai."""
+    """Makes column name SQL-safe."""
     clean = str(name).strip()
     clean = "".join(ch if ch.isalnum() or ch == "_" else "_" for ch in clean)
     if clean and clean[0].isdigit():
@@ -441,12 +441,12 @@ def clean_column_for_sql(name: str) -> str:
 
 
 def get_numeric_columns(df: pd.DataFrame) -> list:
-    """DataFrame ke numeric columns list karta hai."""
+    """Lists numeric columns of DataFrame."""
     return df.select_dtypes(include=[np.number]).columns.tolist()
 
 
 def get_categorical_columns(df: pd.DataFrame) -> list:
-    """DataFrame ke categorical columns list karta hai."""
+    """Lists categorical columns of DataFrame."""
     return df.select_dtypes(include=["object", "category"]).columns.tolist()
 
 
@@ -460,7 +460,7 @@ def retry(
     exceptions: tuple = (Exception,),
 ):
     """
-    Decorator - function ko multiple times try karta hai on exception.
+    Decorator - retries function multiple times on exception.
 
     Usage:
         @retry(times=3, delay=1)
@@ -493,7 +493,7 @@ def retry(
 
 @contextmanager
 def suppress_stdout():
-    """stdout suppress karta hai (verbose libraries ke liye)."""
+    """Suppresses stdout (for verbose libraries)."""
     import sys
     import io
     old_stdout = sys.stdout

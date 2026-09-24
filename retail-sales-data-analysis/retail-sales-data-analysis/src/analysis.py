@@ -5,7 +5,7 @@
 # ============================================
 
 """
-Ye file saara business analysis karti hai. Koi API nahi.
+This file performs all business analysis. No API.
 
 Analysis Functions:
 - overall_kpis()             : Total Sales, Profit, Orders, Margin
@@ -26,7 +26,7 @@ Analysis Functions:
 - customer_analysis()        : Top customers
 - payment_mode_analysis()    : Payment mode wise sales
 - loss_making_products()     : Products giving loss
-- run_all_analysis()         : Saare analysis ek saath
+- run_all_analysis()         : Run all analyses together
 """
 
 import logging
@@ -68,7 +68,7 @@ logger = logging.getLogger(__name__)
 
 def overall_kpis(df: pd.DataFrame) -> dict:
     """
-    Basic KPIs calculate karta hai.
+    Calculates basic KPIs.
 
     Returns:
         dict with total_sales, total_profit, total_orders,
@@ -81,9 +81,9 @@ def overall_kpis(df: pd.DataFrame) -> dict:
     total_quantity = int(df[COL_QUANTITY].sum())
 
     avg_order_value = round(total_sales / total_orders, 2) if total_orders else 0.0
-    
+
     profit_margin = (total_profit / total_sales) * 100 if total_sales else 0.0
-    
+
     avg_discount = round(float(df[COL_DISCOUNT].mean()), 2)
 
     kpis = {
@@ -97,13 +97,13 @@ def overall_kpis(df: pd.DataFrame) -> dict:
         "unique_customers": int(df[COL_CUSTOMER_NAME].nunique()),
         "unique_products": int(df[COL_PRODUCT_NAME].nunique()),
     }
-    
+
     logger.info(f"KPIs calculated: Sales={total_sales:.0f}, Profit={total_profit:.0f}")
     return kpis
 
 
 def print_kpis(kpis: dict) -> None:
-    """KPIs ko print karta hai."""
+    """Prints KPIs."""
     print("=" * 60)
     print("OVERALL KPIs")
     print("=" * 60)
@@ -126,7 +126,7 @@ def print_kpis(kpis: dict) -> None:
 def region_wise_analysis(df: pd.DataFrame) -> pd.DataFrame:
     """
     Region-wise Sales, Profit, Orders, Margin.
-    Sales ke hisaab se descending order.
+    Sorted descending by Sales.
     """
     result = (
         df.groupby(COL_REGION)
@@ -235,7 +235,7 @@ def top_products(df: pd.DataFrame, n: int = TOP_N) -> pd.DataFrame:
 # ============================================
 
 def bottom_products(df: pd.DataFrame, n: int = BOTTOM_N) -> pd.DataFrame:
-    """Bottom N products by Profit (sabse kam profit / loss)."""
+    """Bottom N products by Profit (lowest profit / loss)."""
     result = (
         product_wise_analysis(df)
         .sort_values("Total_Profit", ascending=True)
@@ -251,7 +251,7 @@ def bottom_products(df: pd.DataFrame, n: int = BOTTOM_N) -> pd.DataFrame:
 # ============================================
 
 def monthly_sales_trend(df: pd.DataFrame) -> pd.DataFrame:
-    """Year_Month ke hisaab se Sales, Profit, Orders."""
+    """Sales, Profit, Orders by Year_Month."""
     result = (
         df.groupby("Year_Month")
         .agg(
@@ -319,8 +319,8 @@ def yearly_analysis(df: pd.DataFrame) -> pd.DataFrame:
 
 def discount_impact(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Discount level ke hisaab se Avg Profit, Total Sales.
-    Discount vs Profit relationship dekhne ke liye.
+    Average Profit and Total Sales by discount level.
+    Used to see the discount vs profit relationship.
     """
     result = (
         df.groupby(COL_DISCOUNT)
@@ -345,7 +345,7 @@ def discount_impact(df: pd.DataFrame) -> pd.DataFrame:
 # ============================================
 
 def discount_band_analysis(df: pd.DataFrame) -> pd.DataFrame:
-    """Discount_Band ke hisaab se summary."""
+    """Summary by Discount_Band."""
     order = ["No Discount", "Low", "Medium", "High", "Very High"]
     result = (
         df.groupby("Discount_Band")
@@ -479,7 +479,7 @@ def payment_mode_analysis(df: pd.DataFrame) -> pd.DataFrame:
 # ============================================
 
 def loss_making_products(df: pd.DataFrame) -> pd.DataFrame:
-    """Sirf woh products jo loss de rahe hain."""
+    """Only products that are making a loss."""
     prod = product_wise_analysis(df)
     result = prod[prod["Total_Profit"] < 0].sort_values(
         "Total_Profit", ascending=True
@@ -496,7 +496,7 @@ def high_discount_alert(
     df: pd.DataFrame,
     threshold: float = MIN_DISCOUNT_ALERT * 100,
 ) -> pd.DataFrame:
-    """Jin orders me discount threshold se zyada hai."""
+    """Orders where discount is greater than the threshold."""
     result = df[df[COL_DISCOUNT] > threshold].copy()
     result = result.sort_values(COL_DISCOUNT, ascending=False)
     logger.info(f"High discount orders (>{threshold}%): {len(result)}")
@@ -509,7 +509,7 @@ def high_discount_alert(
 
 def run_all_analysis(df: pd.DataFrame) -> dict:
     """
-    Saare analysis ek saath run karke dict return karta hai.
+    Runs all analyses together and returns a dict.
     """
     logger.info("=" * 50)
     logger.info("RUNNING ALL ANALYSIS")
@@ -544,7 +544,7 @@ def run_all_analysis(df: pd.DataFrame) -> dict:
 # ============================================
 
 def print_analysis_summary(results: dict) -> None:
-    """Analysis ka short summary print karta hai."""
+    """Prints a short summary of the analysis."""
     print("\n" + "=" * 70)
     print("ANALYSIS SUMMARY")
     print("=" * 70)

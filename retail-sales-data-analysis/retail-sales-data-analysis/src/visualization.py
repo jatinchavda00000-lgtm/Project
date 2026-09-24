@@ -5,11 +5,11 @@
 # ============================================
 
 """
-Ye file saare charts banati hai aur images/ folder me save karti hai.
-Koi API nahi. Matplotlib + Seaborn use hota hai.
+This file creates all charts and saves them in the images/ folder.
+No API. Uses Matplotlib + Seaborn.
 
 Visualization Functions:
-- setup_style()               : Global plot style set karna
+- setup_style()               : Set global plot style
 - plot_sales_distribution()   : Sales histogram
 - plot_profit_distribution()  : Profit histogram
 - plot_region_sales()         : Region-wise bar chart
@@ -28,14 +28,14 @@ Visualization Functions:
 - plot_boxplot_outliers()     : Boxplot for outliers
 - plot_customer_segment()     : Segment-wise bar
 - plot_weekday_analysis()     : Weekday vs Weekend
-- create_all_plots()          : Saare plots ek saath
+- create_all_plots()          : Create all plots together
 """
 
 import logging
 from pathlib import Path
 
 import matplotlib
-matplotlib.use("Agg")  # Non-interactive backend (file save ke liye)
+matplotlib.use("Agg")  # Non-interactive backend (for saving files)
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -85,7 +85,7 @@ logger = logging.getLogger(__name__)
 # ============================================
 
 def setup_style() -> None:
-    """Global plot style set karta hai."""
+    """Sets global plot style."""
     sns.set_theme(style="whitegrid", palette=COLOR_PALETTE)
     plt.rcParams.update({
         "figure.dpi": 100,
@@ -108,7 +108,7 @@ def setup_style() -> None:
 # ============================================
 
 def _save_fig(fig, filename: str, tight: bool = True) -> Path:
-    """Figure ko images/ folder me save karta hai."""
+    """Saves figure to images/ folder."""
     IMAGES_DIR.mkdir(parents=True, exist_ok=True)
     path = IMAGES_DIR / filename
     if tight:
@@ -124,7 +124,7 @@ def _save_fig(fig, filename: str, tight: bool = True) -> Path:
 # ============================================
 
 def plot_sales_distribution(df: pd.DataFrame) -> Path:
-    """Sales ka histogram + KDE."""
+    """Sales histogram + KDE."""
     fig, axes = plt.subplots(1, 2, figsize=FIG_SIZE_WIDE)
 
     sns.histplot(df[COL_SALES], bins=30, kde=True, ax=axes[0],
@@ -146,7 +146,7 @@ def plot_sales_distribution(df: pd.DataFrame) -> Path:
 # ============================================
 
 def plot_profit_distribution(df: pd.DataFrame) -> Path:
-    """Profit ka histogram + KDE."""
+    """Profit histogram + KDE."""
     fig, axes = plt.subplots(1, 2, figsize=FIG_SIZE_WIDE)
 
     sns.histplot(df[COL_PROFIT], bins=30, kde=True, ax=axes[0],
@@ -510,10 +510,10 @@ def plot_payment_mode(df: pd.DataFrame) -> Path:
 # ============================================
 
 def plot_correlation_heatmap(df: pd.DataFrame) -> Path:
-    """Numeric columns ka correlation heatmap."""
+    """Correlation heatmap of numeric columns."""
     numeric_df = df.select_dtypes(include=[np.number])
     if numeric_df.shape[1] < 2:
-        logger.warning("Correlation ke liye kam se kam 2 numeric columns chahiye.")
+        logger.warning("At least 2 numeric columns required for correlation.")
         fig, ax = plt.subplots(figsize=FIG_SIZE_SMALL)
         ax.text(0.5, 0.5, "Not enough numeric columns",
                 ha="center", va="center")
@@ -534,7 +534,7 @@ def plot_correlation_heatmap(df: pd.DataFrame) -> Path:
 # ============================================
 
 def plot_boxplot_outliers(df: pd.DataFrame) -> Path:
-    """Sales aur Profit ke boxplots."""
+    """Boxplots for Sales and Profit."""
     fig, axes = plt.subplots(1, 2, figsize=FIG_SIZE_WIDE)
 
     sns.boxplot(y=df[COL_SALES], ax=axes[0], color=PRIMARY_COLOR)
@@ -627,7 +627,7 @@ def plot_weekday_analysis(df: pd.DataFrame) -> Path:
 
 def create_all_plots(df: pd.DataFrame) -> list:
     """
-    Saare plots ek saath banata hai.
+    Creates all plots together.
     Returns list of saved file paths.
     """
     logger.info("=" * 50)

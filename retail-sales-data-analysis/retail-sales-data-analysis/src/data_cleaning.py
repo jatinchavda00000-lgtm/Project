@@ -5,21 +5,21 @@
 # ============================================
 
 """
-Ye file data cleaning ke saare functions rakhti hai.
-Koi API nahi. Input: raw CSV/Excel -> Output: clean CSV.
+This file contains all data cleaning functions.
+No API. Input: raw CSV/Excel -> Output: clean CSV.
 
 Functions:
-- standardize_columns()    : Column names standard karna
-- drop_duplicates_safe()   : Duplicate rows hatana
-- handle_missing_values()  : Missing values handle karna
-- convert_data_types()     : Data types sahi karna
-- parse_dates()            : Date column ko datetime banana
-- remove_negative_sales()  : Negative sales hatana
-- detect_outliers_iqr()    : Outliers detect karna
-- remove_outliers()        : Outliers hatana (optional)
+- standardize_columns()    : Standardize column names
+- drop_duplicates_safe()   : Remove duplicate rows
+- handle_missing_values()  : Handle missing values
+- convert_data_types()     : Fix data types
+- parse_dates()            : Convert date column to datetime
+- remove_negative_sales()  : Remove negative sales
+- detect_outliers_iqr()    : Detect outliers
+- remove_outliers()        : Remove outliers (optional)
 - validate_data()          : Final validation checks
-- clean_pipeline()         : Poora cleaning pipeline
-- save_cleaned_data()      : Cleaned data save karna
+- clean_pipeline()         : Complete cleaning pipeline
+- save_cleaned_data()      : Save cleaned data
 """
 
 import logging
@@ -74,10 +74,10 @@ logger = logging.getLogger(__name__)
 
 def standardize_columns(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Column names ko standard banata hai:
+    Standardizes column names:
     - Strip whitespace
     - Lowercase -> Title_Case with underscore
-    - Special characters remove
+    - Remove special characters
     - Space -> underscore
 
     Example:
@@ -96,7 +96,7 @@ def standardize_columns(df: pd.DataFrame) -> pd.DataFrame:
         clean = "_".join(part.capitalize() for part in clean.split("_") if part)
         if clean == "Order_Id":
             clean = "Order_ID"
-            
+
         new_columns.append(clean)
 
     df.columns = new_columns
@@ -113,11 +113,11 @@ def drop_duplicates_safe(
     subset: list | None = None,
 ) -> pd.DataFrame:
     """
-    Duplicate rows hatata hai.
+    Removes duplicate rows.
 
     Args:
         df: input DataFrame
-        subset: kis columns par duplicate check karna (default: Order_ID)
+        subset: columns to check duplicates on (default: Order_ID)
 
     Returns:
         Cleaned DataFrame
@@ -142,16 +142,16 @@ def drop_duplicates_safe(
 
 def handle_missing_values(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Missing values ko config rules ke hisaab se handle karta hai:
-    - DROP_IF_MISSING     : rows drop karo
-    - FILL_ZERO_IF_MISSING: 0 se fill karo
-    - FILL_UNKNOWN_IF_MISSING: 'Unknown' se fill karo
+    Handles missing values according to config rules:
+    - DROP_IF_MISSING     : drop rows
+    - FILL_ZERO_IF_MISSING: fill with 0
+    - FILL_UNKNOWN_IF_MISSING: fill with 'Unknown'
     """
     df = df.copy()
     before_rows = len(df)
     before_missing = int(df.isnull().sum().sum())
 
-    # 1. Drop rows jahan critical columns missing hain
+    # 1. Drop rows where critical columns are missing
     drop_cols = [c for c in DROP_IF_MISSING if c in df.columns]
     if drop_cols:
         df = df.dropna(subset=drop_cols)
@@ -214,7 +214,6 @@ def convert_data_types(df: pd.DataFrame) -> pd.DataFrame:
 
     logger.info("Data types converted successfully.")
     return df
-    
 
 
 # ============================================
@@ -223,8 +222,8 @@ def convert_data_types(df: pd.DataFrame) -> pd.DataFrame:
 
 def parse_dates(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Date columns ko datetime me convert karta hai.
-    Extra columns bhi banata hai: Year, Month, Month_Name, Quarter, Weekday
+    Converts date columns to datetime.
+    Also creates extra columns: Year, Month, Month_Name, Quarter, Weekday
     """
     df = df.copy()
 
@@ -233,7 +232,7 @@ def parse_dates(df: pd.DataFrame) -> pd.DataFrame:
             continue
 
         df[col] = pd.to_datetime(df[col], errors="coerce")
-        # Invalid dates drop
+        # Drop invalid dates
         invalid = df[col].isnull().sum()
         if invalid > 0:
             logger.warning(f"Invalid dates dropped from '{col}': {invalid}")
@@ -252,7 +251,7 @@ def parse_dates(df: pd.DataFrame) -> pd.DataFrame:
             3: "Summer", 4: "Summer", 5: "Summer",
             6: "Monsoon", 7: "Monsoon", 8: "Monsoon", 9: "Monsoon",
             10: "Post-Monsoon", 11: "Post-Monsoon"
-        })  
+        })
 
         df["Quarter_Label"] = "Q" + df["Quarter"].astype(str)
 
@@ -292,8 +291,8 @@ def parse_dates(df: pd.DataFrame) -> pd.DataFrame:
 
 def remove_negative_sales(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Sales <= 0 wali rows ko hata deta hai.
-    Quantity <= 0 bhi hata deta hai.
+    Removes rows where Sales <= 0.
+    Also removes Quantity <= 0.
     """
     df = df.copy()
     before = len(df)
@@ -319,10 +318,10 @@ def detect_outliers_iqr(
     multiplier: float = IQR_MULTIPLIER,
 ) -> pd.Series:
     """
-    IQR method se outliers detect karta hai.
+    Detects outliers using the IQR method.
 
     Returns:
-        Boolean Series: True jahan outlier hai
+        Boolean Series: True where outlier exists
     """
     if column not in df.columns:
         raise KeyError(f"Column not found: {column}")
@@ -348,7 +347,7 @@ def remove_outliers(
     multiplier: float = IQR_MULTIPLIER,
 ) -> pd.DataFrame:
     """
-    Diye gaye columns ke outliers remove karta hai.
+    Removes outliers for the given columns.
     Default: [Sales, Profit]
     """
     df = df.copy()
@@ -411,7 +410,7 @@ def validate_data(df: pd.DataFrame) -> dict:
 
 
 def print_validation_report(report: dict) -> None:
-    """Validation report ko sundar tarike se print karta hai."""
+    """Prints the validation report in a nice format."""
     print("=" * 60)
     print("DATA VALIDATION REPORT")
     print("=" * 60)
@@ -438,7 +437,7 @@ def clean_pipeline(
     remove_out: bool = False,
 ) -> pd.DataFrame:
     """
-    Poora cleaning pipeline ek saath chalata hai.
+    Runs the complete cleaning pipeline together.
 
     Steps:
         1. Standardize columns
@@ -451,7 +450,7 @@ def clean_pipeline(
 
     Args:
         df: raw DataFrame
-        remove_out: outliers hatane hain ya nahi (default False)
+        remove_out: whether to remove outliers (default False)
 
     Returns:
         Clean DataFrame
@@ -488,7 +487,7 @@ def save_cleaned_data(
     df: pd.DataFrame,
     output_path: Path | str = CLEAN_DATA_FILE,
 ) -> None:
-    """Cleaned DataFrame ko CSV me save karta hai."""
+    """Saves the cleaned DataFrame to CSV."""
     output_path = Path(output_path)
     output_path.parent.mkdir(parents=True, exist_ok=True)
     df.to_csv(output_path, index=False)

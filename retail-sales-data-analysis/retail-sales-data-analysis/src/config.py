@@ -5,9 +5,9 @@
 # ============================================
 
 """
-Ye file project ki saari configuration ek jagah rakhti hai.
-Paths, column names, database settings, aur constants yahan define hain.
-Isse code me hardcoded values nahi likhni padti.
+This file keeps all project configuration in one place.
+Paths, column names, database settings, and constants are defined here.
+This avoids hardcoding values in the code.
 """
 
 import os
@@ -65,7 +65,7 @@ INSIGHTS_FILE = OUTPUT_DIR / "insights.txt"
 SQLITE_DB_PATH = BASE_DIR / "retail_sales.db"
 SQLITE_CONNECTION_STRING = f"sqlite:///{SQLITE_DB_PATH}"
 
-# --- Option B: MySQL (agar MySQL installed hai to use karo) ---
+# --- Option B: MySQL (use if MySQL is installed) ---
 DB_CONFIG = {
     "host": os.getenv("DB_HOST", "localhost"),
     "port": int(os.getenv("DB_PORT", 3306)),
@@ -162,7 +162,7 @@ IQR_MULTIPLIER = 1.5
 
 TOP_N = 10                  # Top N products/regions
 BOTTOM_N = 10               # Bottom N products/regions
-MIN_DISCOUNT_ALERT = 0.30   # 30% se zyada discount par warning
+MIN_DISCOUNT_ALERT = 0.30   # Warning if discount is more than 30%
 CURRENCY = "INR"            # Currency symbol
 CURRENCY_SYMBOL = "Rs."
 
@@ -205,8 +205,8 @@ LOG_FILE = BASE_DIR / "project.log"
 
 def create_all_directories() -> None:
     """
-    Saari required folders create karta hai agar exist nahi karti.
-    Project run karne se pehle ek baar call karna.
+    Creates all required folders if they don't exist.
+    Call once before running the project.
     """
     directories = [
         DATA_DIR,
@@ -227,7 +227,7 @@ def create_all_directories() -> None:
 
 
 def print_config() -> None:
-    """Debug ke liye current configuration print karta hai."""
+    """Prints current configuration for debugging."""
     print("=" * 60)
     print("RETAIL SALES DATA ANALYSIS - CONFIGURATION")
     print("=" * 60)
