@@ -1,0 +1,86 @@
+# ============================================
+# Retail Sales Data Analysis
+# File: environment.yml
+# Purpose: Conda environment specification
+# ============================================
+#
+# Usage:
+#   conda env create -f environment.yml
+#   conda activate retail-sales
+#
+# Update existing environment:
+#   conda env update -f environment.yml --prune
+#
+# Export current environment:
+#   conda env export --no-builds > environment.yml
+#
+# Note: API is not used anywhere in this project.
+# ============================================
+
+name: retail-sales
+
+channels:
+  - conda-forge
+  - defaults
+
+dependencies:
+  # --------------------------------------------
+  # Python runtime
+  # --------------------------------------------
+  - python=3.11
+  - pip>=23.0
+
+  # --------------------------------------------
+  # Core data handling
+  # --------------------------------------------
+  - pandas>=2.2
+  - numpy>=1.26
+
+  # --------------------------------------------
+  # Visualization
+  # --------------------------------------------
+  - matplotlib>=3.8
+  - seaborn>=0.13
+  - plotly>=5.20
+
+  # --------------------------------------------
+  # SQL / Database
+  # --------------------------------------------
+  - sqlalchemy>=2.0
+  - sqlite>=3.40
+
+  # --------------------------------------------
+  # Excel support
+  # --------------------------------------------
+  - openpyxl>=3.1
+  - xlsxwriter>=3.2
+
+  # --------------------------------------------
+  # Jupyter / Notebooks
+  # --------------------------------------------
+  - jupyter>=1.0
+  - notebook>=7.0
+  - ipykernel>=6.29
+  - ipywidgets>=8.1
+
+  # --------------------------------------------
+  # Testing
+  # --------------------------------------------
+  - pytest>=8.0
+  - pytest-cov>=5.0
+
+  # --------------------------------------------
+  # Utilities
+  # --------------------------------------------
+  - python-dotenv>=1.0
+  - tqdm>=4.66
+
+  # --------------------------------------------
+  # Pip-only packages
+  # --------------------------------------------
+  - pip:
+      - PyMySQL>=1.1.1
+
+# ============================================
+# END OF FILE
+# ============================================

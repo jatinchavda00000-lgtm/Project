@@ -1,0 +1,231 @@
+# ============================================
+# Retail Sales Data Analysis
+# File: .gitignore
+# Purpose: Exclude files/folders from version control
+# ============================================
+
+# --------------------------------------------
+# 1. Python
+# --------------------------------------------
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# --------------------------------------------
+# 2. Virtual Environments
+# --------------------------------------------
+venv/
+env/
+ENV/
+.venv/
+.env.d/
+virtualenv/
+pip-wheel-metadata/
+
+# --------------------------------------------
+# 3. Environment Variables
+# --------------------------------------------
+.env
+.env.*
+!.env.example
+
+# --------------------------------------------
+# 4. Jupyter Notebook
+# --------------------------------------------
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+*/.ipynb_checkpoints/*
+
+# --------------------------------------------
+# 5. Testing / Coverage
+# --------------------------------------------
+.pytest_cache/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+htmlcov/
+pytestdebug.log
+
+# --------------------------------------------
+# 6. Distribution / Packaging
+# --------------------------------------------
+*.tar.gz
+*.zip
+*.whl
+!requirements.txt
+!environment.yml
+
+# --------------------------------------------
+# 7. Database Files
+# --------------------------------------------
+*.db
+*.sqlite
+*.sqlite3
+*.db-journal
+*.db-wal
+retail_sales.db
+
+# --------------------------------------------
+# 8. Logs
+# --------------------------------------------
+*.log
+logs/
+project.log
+
+# --------------------------------------------
+# 9. Data (Large Files)
+# --------------------------------------------
+# Keep raw data out of the repo unless small
+data/raw/*.csv
+data/raw/*.xlsx
+data/raw/*.xls
+data/raw/*.json
+data/processed/*.csv
+data/processed/*.xlsx
+
+# Keep folder structure
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+
+# --------------------------------------------
+# 10. Outputs (Generated)
+# --------------------------------------------
+output/*.csv
+output/*.json
+output/*.txt
+output/*.xlsx
+
+!output/.gitkeep
+
+# --------------------------------------------
+# 11. Images (Generated Plots)
+# --------------------------------------------
+images/*.png
+images/*.jpg
+images/*.jpeg
+images/*.pdf
+
+!images/.gitkeep
+
+# --------------------------------------------
+# 12. Reports (Large Binary Files)
+# --------------------------------------------
+reports/*.pdf
+reports/*.pptx
+reports/*.docx
+reports/*.xlsx
+
+!reports/.gitkeep
+
+# --------------------------------------------
+# 13. Dashboard Files
+# --------------------------------------------
+dashboard/*.pbix
+dashboard/*.twbx
+dashboard/*.twb
+dashboard/dashboard_screenshots/*.png
+
+!dashboard/.gitkeep
+
+# --------------------------------------------
+# 14. IDE / Editor
+# --------------------------------------------
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+*.sublime-project
+*.sublime-workspace
+.project
+.pydevproject
+.settings/
+
+# --------------------------------------------
+# 15. OS-Specific
+# --------------------------------------------
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# --------------------------------------------
+# 16. Temporary Files
+# --------------------------------------------
+*.tmp
+*.bak
+*.orig
+*.rej
+*~
+*.pid
+*.seed
+
+# --------------------------------------------
+# 17. Misc
+# --------------------------------------------
+.mypy_cache/
+.ruff_cache/
+.pylint.d/
+.dmypy.json
+dmypy.json
+.pyre/
+.pytype/
+
+# --------------------------------------------
+# 18. Node (for any front-end helpers)
+# --------------------------------------------
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# --------------------------------------------
+# 19. Local Dev Config
+# --------------------------------------------
+local_settings.py
+local_config.py
+dev_config.py
+secrets.json
+credentials.json
+
+# --------------------------------------------
+# 20. Archive / Backup
+# --------------------------------------------
+*.old
+*.backup
+backup/
+archive/
+
+# ============================================
+# END OF FILE
+# ============================================
