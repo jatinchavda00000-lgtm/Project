@@ -1,0 +1,31 @@
+Order ID,Order Date,Customer Name,Segment,Region,State,City,Product Name,Category,Quantity,Unit Price,Discount,Payment Mode,Sales,Profit
+ORD40001,2024-03-24,Riya Patel,Home Office,South,Tamil Nadu,Chennai,Laptop Stand,Technology,1,1500,10,UPI,1350.0,117.09
+ORD40002,2024-04-17,Aarav Shah,Home Office,South,Karnataka,Bengaluru,Desk Lamp,Furniture,1,900,0,Card,900.0,57.65
+ORD40003,2024-05-26,Aarav Shah,Consumer,South,Tamil Nadu,Chennai,Printer Paper,Office Supplies,7,300,5,Net Banking,1995.0,234.18
+ORD40004,2024-06-04,Riya Patel,Corporate,North,Delhi,Delhi,Office Chair,Furniture,3,4000,5,UPI,11400.0,2206.83
+ORD40005,2024-01-24,Meera Rao,Home Office,North,Delhi,Delhi,Keyboard,Technology,6,1200,20,UPI,5760.0,516.55
+ORD40006,2024-06-19,Anaya Joshi,Home Office,North,Rajasthan,Jaipur,Laptop Stand,Technology,5,1500,20,UPI,6000.0,1096.91
+ORD40007,2024-04-28,Riya Patel,Corporate,West,Gujarat,Ahmedabad,Printer Paper,Office Supplies,4,300,10,Cash,1080.0,213.61
+ORD40008,2024-04-22,Kabir Desai,Home Office,North,Rajasthan,Jaipur,Printer Paper,Office Supplies,6,300,5,UPI,1710.0,180.45
+ORD40009,2024-03-15,Arjun Verma,Corporate,South,Karnataka,Bengaluru,Printer Paper,Office Supplies,3,300,20,Card,720.0,114.75
+ORD40010,2024-06-13,Kabir Desai,Consumer,South,Tamil Nadu,Chennai,Office Chair,Furniture,1,4000,5,Card,3800.0,658.43
+ORD40011,2024-07-21,Meera Rao,Consumer,South,Karnataka,Bengaluru,Printer Paper,Office Supplies,6,300,5,Cash,1710.0,253.62
+ORD40012,2024-10-13,Ishita Trivedi,Consumer,West,Maharashtra,Mumbai,Wireless Mouse,Technology,5,800,20,Card,3200.0,365.65
+ORD40013,2024-03-21,Vivaan Mehta,Home Office,South,Karnataka,Bengaluru,Desk Lamp,Furniture,2,900,0,Net Banking,1800.0,322.5
+ORD40014,2024-08-17,Kabir Desai,Home Office,South,Karnataka,Bengaluru,Laptop Stand,Technology,7,1500,15,UPI,8925.0,1244.0
+ORD40015,2024-11-11,Riya Patel,Corporate,South,Tamil Nadu,Chennai,Printer Paper,Office Supplies,2,300,20,Net Banking,480.0,78.06
+ORD40016,2024-03-17,Riya Patel,Home Office,West,Maharashtra,Mumbai,Desk Lamp,Furniture,1,900,10,Cash,810.0,158.58
+ORD40017,2024-03-18,Aarav Shah,Home Office,East,West Bengal,Kolkata,Printer Paper,Office Supplies,4,300,5,Cash,1140.0,120.94
+ORD40018,2024-05-08,Aarav Shah,Consumer,North,Rajasthan,Jaipur,Laptop Stand,Technology,2,1500,10,UPI,2700.0,490.88
+ORD40019,2024-09-25,Vivaan Mehta,Consumer,West,Gujarat,Ahmedabad,Printer Paper,Office Supplies,8,300,0,Net Banking,2400.0,472.07
+ORD40020,2024-07-07,Anaya Joshi,Home Office,South,Karnataka,Bengaluru,Wireless Mouse,Technology,5,800,20,Cash,3200.0,578.77
+ORD40021,2024-08-04,Anaya Joshi,Consumer,North,Rajasthan,Jaipur,Printer Paper,Office Supplies,6,300,15,UPI,1530.0,282.96
+ORD40022,2024-02-23,Aarav Shah,Consumer,North,Delhi,Delhi,Laptop Stand,Technology,4,1500,20,UPI,4800.0,398.56
+ORD40023,2024-05-22,Meera Rao,Consumer,West,Gujarat,Ahmedabad,Keyboard,Technology,6,1200,0,Card,7200.0,915.29
+ORD40024,2024-07-07,Riya Patel,Consumer,South,Tamil Nadu,Chennai,Notebook Pack,Office Supplies,8,150,5,Net Banking,1140.0,191.17
+ORD40025,2024-01-22,Riya Patel,Consumer,North,Delhi,Delhi,Desk Lamp,Furniture,7,900,15,Net Banking,5355.0,961.63
+ORD40026,2024-09-15,Vivaan Mehta,Corporate,South,Tamil Nadu,Chennai,Office Chair,Furniture,2,4000,5,Card,7600.0,598.41
+ORD40027,2024-09-04,Aarav Shah,Home Office,North,Delhi,Delhi,Desk Lamp,Furniture,4,900,0,UPI,3600.0,419.29
+ORD40028,2024-08-07,Arjun Verma,Consumer,West,Gujarat,Ahmedabad,Keyboard,Technology,4,1200,5,Card,4560.0,505.99
+ORD40029,2024-08-10,Arjun Verma,Home Office,North,Rajasthan,Jaipur,Laptop Stand,Technology,7,1500,10,Net Banking,9450.0,1785.84
+ORD40030,2024-10-24,Aarav Shah,Home Office,West,Maharashtra,Mumbai,Wireless Mouse,Technology,5,800,5,Cash,3800.0,742.16
