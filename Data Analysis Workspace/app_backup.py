@@ -522,8 +522,9 @@ with tab4:
 
         if len(table_list) < 2:
             st.warning(
-                "Set operation ke liye kam se kam 2 tables chahiye."
+                "Set operation requires at least 2 tables."
             )
+
             can_normal_join = False
             right_table = left_table
 
@@ -546,8 +547,8 @@ with tab4:
         if not other_tables:
 
             st.warning(
-                "Join ke liye 2 different tables chahiye. "
-                "Dusri Excel/CSV file upload karo."
+                "Join requires 2 different tables. "
+                "Please upload another Excel/CSV file."
             )
 
             can_normal_join = False
