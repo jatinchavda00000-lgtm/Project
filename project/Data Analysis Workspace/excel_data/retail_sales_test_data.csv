@@ -1,0 +1,24 @@
+Order ID,Order Date,Customer Name,Segment,Region,State,City,Product Name,Category,Quantity,Unit Price,Discount,Payment Mode,Sales,Profit
+ORD20001,2024-01-05,Customer_A,Consumer,West,Gujarat,Ahmedabad,Laptop Stand,Technology,2,"Rs. 1,500",10%,UPI,"Rs. 2,700",Rs. 324
+ORD20002,2024-01-12,Customer_B,Corporate,North,Delhi,New Delhi,Office Chair,Furniture,3,"Rs. 4,000",5%,Card,"Rs. 11,400",Rs. 912
+ORD20003,15/02/2024,Customer_C,Home Office,South,Karnataka,Bangalore,Notebook Pack,Office Supplies,10,Rs. 120,0%,Cash,"Rs. 1,200",Rs. 180
+ORD20004,2024-02-20,Customer_A,Consumer,West,Gujarat,Ahmedabad,Wireless Mouse,Technology,5,Rs. 800,15%,UPI,"Rs. 3,400",Rs. 170
+ORD20005,2024-03-03,Customer_D,Corporate,East,West Bengal,Kolkata,Desk,Furniture,2,"Rs. 6,500",20%,Net Banking,"Rs. 10,400",Rs. 520
+ORD20006,2024-03-18,Customer_E,Consumer,North,Punjab,Ludhiana,Printer Paper,Office Supplies,20,Rs. 250,5%,UPI,"Rs. 4,750",Rs. 475
+ORD20007,2024-04-02,Customer_F,Consumer,South,Tamil Nadu,Chennai,Monitor,Technology,2,"Rs. 12,000",25%,Card,"Rs. 18,000",Rs. -900
+ORD20008,2024-04-15,Customer_G,Corporate,West,Maharashtra,Mumbai,Filing Cabinet,Furniture,4,"Rs. 5,000",30%,Net Banking,"Rs. 14,000",Rs. -700
+ORD20009,2024-05-10,Customer_H,Consumer,East,Odisha,Bhubaneswar,Keyboard,Technology,3,"Rs. 1,200",10%,UPI,"Rs. 3,240",Rs. 324
+ORD20010,2024-05-22,Customer_I,Home Office,North,Haryana,Gurgaon,Desk Lamp,Furniture,6,Rs. 900,0%,Cash,"Rs. 5,400",Rs. 810
+ORD20011,2024-06-07,Customer_J,Corporate,South,Kerala,Kochi,SSD,Technology,2,"Rs. 7,500",20%,Card,"Rs. 12,000",Rs. 600
+ORD20012,2024-06-21,Customer_K,Consumer,West,Rajasthan,Jaipur,Stapler Set,Office Supplies,8,Rs. 300,5%,UPI,"Rs. 2,280",Rs. 342
+ORD20013,2024-07-04,Customer_L,Consumer,East,Bihar,Patna,Bookshelf,Furniture,1,"Rs. 8,000",35%,Card,"Rs. 5,200","Rs. -1,300"
+ORD20014,2024-07-19,Customer_M,Corporate,North,Delhi,New Delhi,Webcam,Technology,3,"Rs. 3,500",10%,Net Banking,"Rs. 9,450",Rs. 756
+ORD20015,2024-08-08,Customer_N,Home Office,West,Gujarat,Ahmedabad,Pen Set,Office Supplies,15,Rs. 100,1%,Cash,"Rs. 1,485",Rs. 148.50
+ORD20016,2024-08-29,Customer_O,Consumer,South,Telangana,Hyderabad,Tablet,Technology,2,"Rs. 18,000",40%,Card,"Rs. 21,600","Rs. -2,160"
+ORD20017,2024-09-14,Customer_P,Corporate,East,Jharkhand,Ranchi,Drawer Unit,Furniture,2,"Rs. 3,200",15%,UPI,"Rs. 5,440",Rs. 544
+ORD20018,2024-10-03,Customer_Q,Consumer,North,UP,Lucknow,USB Hub,Technology,4,Rs. 700,10%,Cash,"Rs. 2,520",Rs. 252
+ORD20019,2024-11-11,,Consumer,West,Gujarat,Ahmedabad,Calculator,Office Supplies,5,Rs. 600,20%,UPI,"Rs. 2,400",Rs. 120
+ORD20020,2024-12-05,Customer_R,,,,,Office Table,Furniture,2,"Rs. 7,000",25%,Card,"Rs. 10,500",Rs. 210
+ORD20021,2024-12-18,Customer_S,Consumer,West,Gujarat,Ahmedabad,Laptop Stand,Technology,2,"Rs. 1,500",10%,UPI,"Rs. 2,700",Rs. 324
+ORD20004,2024-02-20,Customer_A,Consumer,West,Gujarat,Ahmedabad,Wireless Mouse,Technology,5,Rs. 800,15%,UPI,"Rs. 3,400",Rs. 170
+ORD20022,2024-12-20,Customer_T,Consumer,South,Karnataka,Bangalore,Damaged Item,Furniture,0,"Rs. 5,000",10%,Cash,Rs. 0,Rs. 0
