@@ -2,4 +2,4 @@
 pip install -r requirements.txt
 
 #run
-python -m streamlit run app.py
+python -m streamlit run "C:\Users\HP\Documents\GitHub\Project\Data Analysis Workspace\app.py" --server.port 8503

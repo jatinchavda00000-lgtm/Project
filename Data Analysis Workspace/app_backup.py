@@ -384,23 +384,81 @@ CREATE TABLE `{query_table}` (
         language="sql"
     )
 
+    
     # 2. COLUMN QUERY
-    st.write("### 2. Column Query")
+    st.write("### 2. Column Query (SELECT, AS, Comments)")
 
-    columns_sql = ", ".join(
-        f"`{column}`"
-        for column in df.columns
+    selected_columns = st.multiselect(
+        "Select Columns",
+        list(df.columns),
+        default=list(df.columns),
+        key="query_selected_columns"
     )
 
-    column_query = (
-        f"SELECT {columns_sql} "
-        f"FROM `{query_table}`;"
+    use_aliases = st.checkbox(
+        "Use AS Alias",
+        key="query_use_aliases"
     )
 
-    st.code(
-        column_query,
-        language="sql"
+    alias_map = {}
+
+    if use_aliases:
+        for column in selected_columns:
+            alias_map[column] = st.text_input(
+                f"Alias for {column}",
+                key=f"query_alias_{query_table}_{column}"
+            )
+
+    add_comment = st.checkbox(
+        "Add SQL Comment",
+        key="query_add_comment"
     )
+
+    sql_comment = ""
+
+    if add_comment:
+        sql_comment = st.text_input(
+            "Enter SQL Comment",
+            value="Select required columns",
+            key="query_sql_comment"
+        )
+
+    if not selected_columns:
+        st.warning("Please select at least one column.")
+
+    else:
+        columns_sql = []
+
+        for column in selected_columns:
+            quoted_column = (
+                "`" + str(column).replace("`", "``") + "`"
+            )
+
+            alias = alias_map.get(column, "").strip()
+
+            if use_aliases and alias:
+                quoted_alias = (
+                    "`" + alias.replace("`", "``") + "`"
+                )
+                columns_sql.append(
+                    f"{quoted_column} AS {quoted_alias}"
+                )
+            else:
+                columns_sql.append(quoted_column)
+
+        column_query = (
+            f"SELECT {', '.join(columns_sql)} "
+            f"FROM `{query_table}`;"
+        )
+
+        if add_comment and sql_comment.strip():
+            clean_comment = " ".join(sql_comment.splitlines())
+            column_query = (
+                f"-- {clean_comment}\n" + column_query
+            )
+
+        st.code(column_query, language="sql")
+
 
     # 3. DATA QUERY
     st.write("### 3. Data Query")
