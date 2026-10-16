@@ -1690,6 +1690,58 @@ with tab11:
 
     st.subheader("SQL Query Editor")
 
+        # CREATE DATABASE - Local Demo
+    st.write("### 1. CREATE DATABASE")
+
+    database_name = st.text_input(
+        "Enter Database Name",
+        placeholder="analytics_db",
+        key="create_database_name"
+    )
+
+    if st.button("Create Database", key="create_database_button"):
+        db_name = database_name.strip()
+
+        if (
+            not db_name
+            or not db_name.replace("_", "").isalnum()
+            or db_name[0].isdigit()
+        ):
+            st.error("Enter a valid database name.")
+        else:
+            db_path = Path(__file__).resolve().parent / f"{db_name}.db"
+
+            st.code(
+                f"CREATE DATABASE {db_name};",
+                language="sql"
+            )
+
+            if db_path.exists():
+                st.warning("This database file already exists.")
+            else:
+                try:
+                    with sqlite3.connect(str(db_path)) as db_conn:
+                        db_conn.execute("""
+                            CREATE TABLE _datacraft_info (
+                                database_name TEXT,
+                                created_at TEXT DEFAULT CURRENT_TIMESTAMP
+                            )
+                        """)
+                        db_conn.execute(
+                            "INSERT INTO _datacraft_info (database_name) VALUES (?)",
+                            (db_name,)
+                        )
+
+                    st.success(f"Local database created: {db_path}")
+
+                    st.info(
+                        "This is a local SQLite demo. "
+                        "No MySQL server connection is required."
+                    )
+
+                except Exception as e:
+                    st.error(f"Database Error: {e}")
+
     table_list = list(tables.keys())
 
     st.write("Available Tables")
