@@ -272,7 +272,7 @@ if not tables:
     st.stop()
 
 
-tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8, tab9, tab10, tab11, tab12, tab13, tab14, tab15, tab16 = st.tabs(
+tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8, tab9, tab10, tab11, tab12, tab13, tab14, tab15, tab16, tab17 = st.tabs(
     [
         "Table",
         "Database",
@@ -289,7 +289,8 @@ tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8, tab9, tab10, tab11, tab12, tab13
         "Constraints",
         "🤖 AI SQL Generator",
         "📊 Data Quality",
-        "🛠️ ALTER TABLE"    
+        "🛠️ ALTER TABLE",
+        "👁️ Views"  
     ]
 )
 
@@ -2904,3 +2905,95 @@ DROP COLUMN `{drop_column}`;
                 st.error(
                     f"ALTER TABLE Error: {e}"
                 )
+
+
+# VIEWS
+with tab17:
+    st.subheader("👁️ SQL Views")
+
+    view_name = st.text_input(
+        "View Name",
+        key="views_name"
+    )
+
+    view_table = st.selectbox(
+        "Select Source Table",
+        list(tables.keys()),
+        key="views_source_table"
+    )
+
+    view_columns = st.multiselect(
+        "Select View Columns",
+        list(tables[view_table].columns),
+        default=list(tables[view_table].columns),
+        key="views_selected_columns"
+    )
+
+    if st.button("Create View", key="views_create_button"):
+        view_name = view_name.strip()
+
+        if not re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*", view_name):
+            st.error("Enter a valid View Name.")
+
+        elif not view_columns:
+            st.error("Select at least one column.")
+
+        else:
+            try:
+                existing = pd.read_sql_query(
+                    "SELECT name FROM sqlite_master WHERE type='view'",
+                    conn
+                )["name"].tolist()
+
+                if view_name.lower() in [v.lower() for v in existing]:
+                    st.error("View already exists. Use another name.")
+
+                else:
+                    quote = lambda value: '"' + str(value).replace('"', '""') + '"'
+
+                    columns_sql = ", ".join(
+                        quote(column) for column in view_columns
+                    )
+
+                    query = (
+                        f"CREATE VIEW {quote(view_name)} AS "
+                        f"SELECT {columns_sql} "
+                        f"FROM {quote(view_table)}"
+                    )
+
+                    st.code(query, language="sql")
+                    conn.execute(query)
+                    conn.commit()
+                    st.success("View created successfully.")
+
+            except Exception as e:
+                st.error(f"View Error: {e}")
+
+    st.write("### Existing Views")
+
+    views = pd.read_sql_query(
+        "SELECT name FROM sqlite_master "
+        "WHERE type='view' ORDER BY name",
+        conn
+    )
+
+    st.dataframe(views, use_container_width=True)
+
+    if not views.empty:
+        selected_view = st.selectbox(
+            "Select View to Query",
+            views["name"].tolist(),
+            key="views_query_selection"
+        )
+
+        if st.button("Run View Query", key="views_run_button"):
+            try:
+                safe_view = selected_view.replace('"', '""')
+                result = pd.read_sql_query(
+                    f'SELECT * FROM "{safe_view}"',
+                    conn
+                )
+                st.dataframe(result, use_container_width=True)
+
+            except Exception as e:
+                st.error(f"View Query Error: {e}")
