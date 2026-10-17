@@ -3,6 +3,7 @@ import io
 import streamlit as st
 import pandas as pd
 import sqlite3
+import re
 from pathlib import Path
 from openpyxl import load_workbook
 from openpyxl.styles.numbers import is_date_format
@@ -1766,67 +1767,122 @@ with tab11:
 
     if st.button("Execute SQL Query"):
 
-        if not sql_query.strip():
+        query_text = sql_query.strip()
 
+        if not query_text:
             st.warning("Please enter a SQL query.")
 
         else:
+            db_match = re.fullmatch(
+                r"CREATE\s+DATABASE\s+"
+                r"(?:IF\s+NOT\s+EXISTS\s+)?"
+                r"`?([A-Za-z_][A-Za-z0-9_]*)`?\s*;?",
+                query_text,
+                re.IGNORECASE,
+            )
 
-            try:
+            if db_match:
+                db_name = db_match.group(1)
 
-                result = pd.read_sql(
-                    sql_query,
-                    conn
+                db_path = (
+                    Path(__file__).resolve().parent
+                    / f"{db_name}.db"
                 )
 
-                # Save query to history
-                st.session_state.query_history.append(
-                    sql_query
-                )
+                st.code(query_text, language="sql")
 
-                st.write("### Query Result")
+                try:
+                    if db_path.exists():
+                        if re.search(
+                            r"\bIF\s+NOT\s+EXISTS\b",
+                            query_text,
+                            re.IGNORECASE,
+                        ):
+                            st.info(
+                                f"Database '{db_name}' already exists."
+                            )
+                        else:
+                            st.warning(
+                                f"Database '{db_name}' already exists. "
+                                "Use another name."
+                            )
 
-                st.dataframe(
-                    result,
-                    use_container_width=True
-                )
+                    else:
+                        with sqlite3.connect(str(db_path)) as db_conn:
+                            db_conn.execute("""
+                                CREATE TABLE _datacraft_info (
+                                    database_name TEXT,
+                                    created_at TEXT
+                                    DEFAULT CURRENT_TIMESTAMP
+                                )
+                            """)
 
-                # CSV Download
-                csv_data = result.to_csv(index=False)
+                            db_conn.execute(
+                                "INSERT INTO _datacraft_info "
+                                "(database_name) VALUES (?)",
+                                (db_name,),
+                            )
 
-                st.download_button(
-                    "Download CSV",
-                    csv_data,
-                    "query_result.csv",
-                    "text/csv"
-                )
+                        st.success(
+                            f"Database created successfully: {db_path.name}"
+                        )
+                        st.info(
+                            "Local SQLite database created "
+                            "without an external connection."
+                        )
 
-                # Excel Download
-                excel_buffer = io.BytesIO()
+                    st.session_state.query_history.append(query_text)
 
-                with pd.ExcelWriter(
-                    excel_buffer,
-                    engine="openpyxl"
-                ) as writer:
+                except Exception as e:
+                    st.error(f"Database Error: {e}")
 
-                    result.to_excel(
-                        writer,
-                        index=False,
-                        sheet_name="Result"
+            elif query_text.upper().startswith("CREATE DATABASE"):
+                st.error("Invalid CREATE DATABASE syntax.")
+
+            else:
+                try:
+                    result = pd.read_sql(query_text, conn)
+
+                    st.session_state.query_history.append(query_text)
+
+                    st.write("### Query Result")
+                    st.dataframe(
+                        result,
+                        use_container_width=True,
                     )
 
-                st.download_button(
-                    "Download Excel",
-                    excel_buffer.getvalue(),
-                    "query_result.xlsx",
-                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-                )
+                    csv_data = result.to_csv(index=False)
 
-            except Exception as e:
+                    st.download_button(
+                        "Download CSV",
+                        csv_data,
+                        "query_result.csv",
+                        "text/csv",
+                    )
 
-                st.error(
-                    f"SQL Error: {e}"
-                )
+                    excel_buffer = io.BytesIO()
+
+                    with pd.ExcelWriter(
+                        excel_buffer,
+                        engine="openpyxl",
+                    ) as writer:
+                        result.to_excel(
+                            writer,
+                            index=False,
+                            sheet_name="Result",
+                        )
+
+                    st.download_button(
+                        "Download Excel",
+                        excel_buffer.getvalue(),
+                        "query_result.xlsx",
+                        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                    )
+
+                except Exception as e:
+                    st.error(f"SQL Error: {e}")
+
+
 
 
     st.write("### Query History")
