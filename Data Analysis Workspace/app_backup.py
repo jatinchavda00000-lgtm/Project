@@ -962,6 +962,7 @@ FROM {quote_column(right_table)};
                     )
 
 # FILTER & SORT
+
 with tab5:
 
     st.subheader("Filter & Sort")
@@ -985,6 +986,17 @@ with tab5:
         ["=", "!=", ">", "<", ">=", "<=", "LIKE"],
         key="filter_operator"
     )
+
+    if operator == "LIKE":
+        like_pattern = st.selectbox(
+            "LIKE Pattern",
+            [
+                "Contains (%R%)",
+                "Starts with (R%)",
+                "Ends with (%R)"
+            ],
+            key="like_pattern"
+        )
 
     value = st.text_input(
         "Enter Value",
@@ -1013,9 +1025,22 @@ with tab5:
     if st.button("Generate Filter Query"):
 
         if operator == "LIKE":
-            condition = f"`{filter_column}` LIKE '%{value}%'"
+            if like_pattern == "Starts with (R%)":
+                pattern = f"{value}%"
+            elif like_pattern == "Ends with (%R)":
+                pattern = f"%{value}"
+            else:
+                pattern = f"%{value}%"
+
+            safe_pattern = pattern.replace("'", "''")
+            condition = (
+            f"`{filter_column}` LIKE '{safe_pattern}'"
+            )
         else:
-            condition = f"`{filter_column}` {operator} '{value}'"
+            safe_value = value.replace("'", "''")
+            condition = (
+                f"`{filter_column}` {operator} '{safe_value}'"
+            )
 
         query = f"""
 SELECT *
@@ -2066,6 +2091,16 @@ with tab12:
             "WHERE Operator",
             ["=", "!=", ">", "<", ">=", "<=", "LIKE"],
             key="update_where_operator"
+        )
+
+        like_pattern = st.selectbox(
+            "LIKE Pattern",
+            [
+                "Contains (%R%)",
+                "Starts with (R%)",
+                "Ends with (%R)"
+            ],
+            key="like_pattern"
         )
 
         where_value = st.text_input(
