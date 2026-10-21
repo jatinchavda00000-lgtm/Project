@@ -760,19 +760,22 @@ ON l.{quote_column(right_index)}
  = r.{quote_column(left_index)};
 """
                 elif operation == "FULL OUTER JOIN":
-                    # Simulate FULL OUTER JOIN using UNION of two LEFT JOINs
+                    # Simulate FULL OUTER JOIN in SQLite
                     query = f"""
 SELECT {select_sql}
 FROM {quote_column(left_table)} AS l
 LEFT JOIN {quote_column(right_table)} AS r
-ON l.{quote_column(left_index)} = r.{quote_column(right_index)}
+ON l.{quote_column(left_index)}
+ = r.{quote_column(right_index)}
 
-UNION
+UNION ALL
 
 SELECT {select_sql}
-FROM {quote_column(right_table)} AS l
-LEFT JOIN {quote_column(left_table)} AS r
-ON l.{quote_column(right_index)} = r.{quote_column(left_index)};
+FROM {quote_column(right_table)} AS r
+LEFT JOIN {quote_column(left_table)} AS l
+ON r.{quote_column(right_index)}
+ = l.{quote_column(left_index)}
+WHERE l.rowid IS NULL;
 """
                 else:
                     query = f"""
@@ -899,33 +902,90 @@ CROSS JOIN {quote_column(right_table)} AS r;
             key="union_right_columns"
         )
 
+        
         if st.button("Generate Set Query"):
 
             if len(left_columns) != len(right_columns):
-
                 st.error(
                     "Both tables must have the same number of columns."
                 )
 
-            elif len(left_columns) == 0:
-
-                st.error(
-                    "Please select at least one column."
-                )
+            elif not left_columns:
+                st.error("Please select at least one column.")
 
             else:
 
-                left_sql = ", ".join(
-                    quote_column(column)
-                    for column in left_columns
-                )
+                def infer_union_type(series):
+                    values = series.dropna()
 
-                right_sql = ", ".join(
-                    quote_column(column)
-                    for column in right_columns
-                )
+                    if values.empty:
+                        return "UNKNOWN"
 
-                query = f"""
+                    if pd.api.types.is_bool_dtype(series):
+                        return "BOOLEAN"
+
+                    if pd.api.types.is_datetime64_any_dtype(series):
+                        return "DATE"
+
+                    if pd.api.types.is_numeric_dtype(series):
+                        if pd.api.types.is_integer_dtype(series):
+                            return "INTEGER"
+                        return "REAL"
+
+                    return "TEXT"
+
+                mismatches = []
+                numeric_types = {"INTEGER", "REAL"}
+
+                for left_col, right_col in zip(
+                    left_columns, right_columns
+                ):
+                    left_type = infer_union_type(
+                        tables[left_table][left_col]
+                    )
+                    right_type = infer_union_type(
+                        tables[right_table][right_col]
+                    )
+
+                    compatible = (
+                        left_type == "UNKNOWN"
+                        or right_type == "UNKNOWN"
+                        or left_type == right_type
+                        or (
+                            left_type in numeric_types
+                            and right_type in numeric_types
+                        )
+                    )
+
+                    if not compatible:
+                        mismatches.append(
+                            f"{left_col} ({left_type}) ↔ "
+                            f"{right_col} ({right_type})"
+                        )
+
+                if mismatches:
+                    st.error(
+                        "Incompatible column data types found:"
+                    )
+                    for mismatch in mismatches:
+                        st.write(f"- {mismatch}")
+
+                    st.warning(
+                        "Please select columns with matching data types and generate the query again."
+                    )
+
+                else:
+                    left_sql = ", ".join(
+                        quote_column(column)
+                        for column in left_columns
+                    )
+
+                    right_sql = ", ".join(
+                        quote_column(column)
+                        for column in right_columns
+                    )
+
+                    query = f"""
 SELECT {left_sql}
 FROM {quote_column(left_table)}
 
@@ -935,32 +995,23 @@ SELECT {right_sql}
 FROM {quote_column(right_table)};
 """
 
-                st.write("### SQL Query")
+                    st.write("### SQL Query")
+                    st.code(query, language="sql")
 
-                st.code(
-                    query,
-                    language="sql"
-                )
+                    try:
+                        result = pd.read_sql(query, conn)
 
-                try:
+                        st.write("### Result")
+                        st.dataframe(
+                            result,
+                            use_container_width=True
+                        )
 
-                    result = pd.read_sql(
-                        query,
-                        conn
-                    )
+                    except Exception as e:
+                        st.error(f"Query Error: {e}")
 
-                    st.write("### Result")
 
-                    st.dataframe(
-                        result,
-                        use_container_width=True
-                    )
 
-                except Exception as e:
-
-                    st.error(
-                        f"Query Error: {e}"
-                    )
 
 # FILTER & SORT
 
@@ -1609,6 +1660,7 @@ with tab10:
         [
             "YEAR",
             "MONTH",
+            "ROUND",
             "DAY",
             "UPPER",
             "LOWER",
@@ -1646,6 +1698,15 @@ with tab10:
             "Compare Value",
             key="nullif_value"
         )
+    
+    elif function == "ROUND":
+         round_digits = st.number_input(
+            "Decimal Places",
+            min_value=0,
+            max_value=10,
+            value=2,
+            key="round_digits"
+    )
 
     if st.button("Generate Function Query"):
 
@@ -1659,6 +1720,9 @@ with tab10:
 
         elif function == "DAY":
             expression = f"CAST(strftime('%d', {column}) AS INTEGER)"
+
+        elif function == "ROUND":
+            expression = f"ROUND({column}, {round_digits})"
 
         elif function == "UPPER":
             expression = f"UPPER({column})"
@@ -2272,7 +2336,8 @@ with tab13:
             "PRIMARY KEY",
             "NOT NULL",
             "UNIQUE",
-            "DEFAULT"
+            "DEFAULT",
+            "FOREIGN KEY",
         ],
         key="constraint_type"
     )
@@ -2285,6 +2350,27 @@ with tab13:
             "Default Value",
             key="constraint_default"
         )
+
+    elif constraint_type == "FOREIGN KEY":
+        reference_tables = [
+            t for t in tables.keys()
+            if t != constraint_table
+        ]
+
+        if not reference_tables:
+            reference_tables = [constraint_table]
+
+        reference_table = st.selectbox(
+            "Reference Table",
+            reference_tables,
+            key="fk_reference_table"
+        )
+
+        reference_column = st.selectbox(
+            "Reference Column",
+            list(tables[reference_table].columns),
+            key="fk_reference_column"
+    )
 
     if st.button("Generate Constraint Query"):
 
@@ -2315,6 +2401,13 @@ with tab13:
 
             column_types.append(
                 f"`{column}` {sql_type}{constraint}"
+            )
+
+        if constraint_type == "FOREIGN KEY":
+            column_types.append(
+                f"FOREIGN KEY (`{constraint_column}`) "
+                f"REFERENCES `{reference_table}` "
+                f"(`{reference_column}`)"
             )
 
         query = f"""
@@ -2822,7 +2915,7 @@ TO `{new_column}`;
         )
 
         st.warning(
-            f"⚠️ `{drop_column}` permanently delete hoga."
+             f"⚠️ `{drop_column}` will be permanently deleted."
         )
 
         confirm = st.checkbox(
