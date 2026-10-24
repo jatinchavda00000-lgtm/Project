@@ -1476,15 +1476,18 @@ with tab9:
     st.subheader("Subquery & Window Functions")
 
     feature = st.selectbox(
-        "Select Feature",
-        [
-            "SUBQUERY",
-            "ROW_NUMBER",
-            "RANK",
-            "DENSE_RANK"
-        ],
-        key="subquery_window_feature"
-    )
+    "Select Feature",
+    [
+        "SCALAR - WHERE",
+        "SCALAR - SELECT",
+        "ROW SUBQUERY",
+        "TABLE SUBQUERY (FROM)",
+        "ROW_NUMBER",
+        "RANK",
+        "DENSE_RANK"
+    ],
+    key="subquery_window_feature"
+)
 
     table_list = list(tables.keys())
 
@@ -1497,56 +1500,51 @@ with tab9:
     df = tables[selected_table]
 
 
-    # ---------------- SUBQUERY ----------------
+    # ---------------- SUBQUERY HELPER ----------------
 
-    if feature == "SUBQUERY":
+    def show_subquery_result(query):
+        st.write("### SQL Query")
+        st.code(query, language="sql")
 
-        selected_columns = st.multiselect(
-            "Select Columns",
-            list(df.columns),
-            default=list(df.columns),
-            key="subquery_columns"
-        )
+        try:
+            result = pd.read_sql(query, conn)
+            st.write("### Result")
+            st.dataframe(result, use_container_width=True)
+        except Exception as e:
+            st.error(f"Query Error: {e}")
+
+    # ---------------- SCALAR SUBQUERY IN WHERE ----------------
+
+    if feature == "SCALAR - WHERE":
 
         aggregate_column = st.selectbox(
-            "Subquery Column",
+            "Aggregate Column",
             list(df.columns),
-            key="subquery_aggregate_column"
+            key="scalar_where_aggregate"
         )
 
         aggregate_function = st.selectbox(
             "Aggregate Function",
             ["AVG", "SUM", "MIN", "MAX", "COUNT"],
-            key="subquery_aggregate_function"
-        )
-
-        operator = st.selectbox(
-            "Operator",
-            [">", "<", "=", ">=", "<="],
-            key="subquery_operator"
+            key="scalar_where_function"
         )
 
         value_column = st.selectbox(
             "Main Query Column",
             list(df.columns),
-            key="subquery_value_column"
+            key="scalar_where_column"
         )
 
-        if st.button("Generate Subquery"):
+        operator = st.selectbox(
+            "Operator",
+            [">", "<", "=", ">=", "<="],
+            key="scalar_where_operator"
+        )
 
-            if not selected_columns:
+        if st.button("Generate Scalar WHERE Query"):
 
-                st.error("Please select at least one column.")
-
-            else:
-
-                columns_sql = ", ".join(
-                    f"`{column}`"
-                    for column in selected_columns
-                )
-
-                query = f"""
-SELECT {columns_sql}
+            query = f"""
+SELECT *
 FROM `{selected_table}`
 WHERE `{value_column}` {operator}
 (
@@ -1554,33 +1552,123 @@ WHERE `{value_column}` {operator}
     FROM `{selected_table}`
 );
 """
+            show_subquery_result(query)
 
-                st.write("### SQL Query")
+    # ---------------- SCALAR SUBQUERY IN SELECT ----------------
 
-                st.code(
-                    query,
-                    language="sql"
+    elif feature == "SCALAR - SELECT":
+
+        aggregate_column = st.selectbox(
+            "Aggregate Column",
+            list(df.columns),
+            key="scalar_select_column"
+        )
+
+        aggregate_function = st.selectbox(
+            "Aggregate Function",
+            ["AVG", "SUM", "MIN", "MAX", "COUNT"],
+            key="scalar_select_function"
+        )
+
+        if st.button("Generate Scalar SELECT Query"):
+
+            query = f"""
+SELECT *,
+       (
+           SELECT {aggregate_function}(`{aggregate_column}`)
+           FROM `{selected_table}`
+       ) AS Subquery_Result
+FROM `{selected_table}`;
+"""
+            show_subquery_result(query)
+
+    # ---------------- ROW SUBQUERY ----------------
+
+    elif feature == "ROW SUBQUERY":
+
+        row_columns = st.multiselect(
+            "Select at least 2 Columns",
+            list(df.columns),
+            default=list(df.columns[:2]),
+            key="row_subquery_columns"
+        )
+
+        filter_column = st.selectbox(
+            "Filter Column",
+            list(df.columns),
+            key="row_subquery_filter_column"
+        )
+
+        filter_operator = st.selectbox(
+            "Filter Operator",
+            ["=", "!=", ">", "<", ">=", "<="],
+            key="row_subquery_filter_operator"
+        )
+
+        filter_value = st.text_input(
+            "Filter Value",
+            key="row_subquery_filter_value"
+        )
+
+        if st.button("Generate Row Subquery"):
+
+            if len(row_columns) < 2:
+                st.error("Select at least 2 columns.")
+            else:
+                columns_sql = ", ".join(
+                    f"`{column}`"
+                    for column in row_columns
                 )
 
-                try:
+                safe_value = filter_value.replace("'", "''")
 
-                    result = pd.read_sql(
-                        query,
-                        conn
-                    )
+                query = f"""
+SELECT *
+FROM `{selected_table}`
+WHERE ({columns_sql}) = (
+    SELECT {columns_sql}
+    FROM `{selected_table}`
+    WHERE `{filter_column}` {filter_operator} '{safe_value}'
+    LIMIT 1
+);
+"""
+                show_subquery_result(query)
 
-                    st.write("### Result")
+    # ---------------- TABLE SUBQUERY / DERIVED TABLE ----------------
 
-                    st.dataframe(
-                        result,
-                        use_container_width=True
-                    )
+    elif feature == "TABLE SUBQUERY (FROM)":
 
-                except Exception as e:
+        group_column = st.selectbox(
+            "Group By Column",
+            list(df.columns),
+            key="table_subquery_group"
+        )
 
-                    st.error(
-                        f"Query Error: {e}"
-                    )
+        aggregate_column = st.selectbox(
+            "Aggregate Column",
+            list(df.columns),
+            key="table_subquery_aggregate"
+        )
+
+        aggregate_function = st.selectbox(
+            "Aggregate Function",
+            ["COUNT", "SUM", "AVG", "MIN", "MAX"],
+            key="table_subquery_function"
+        )
+
+        if st.button("Generate Table Subquery"):
+
+            query = f"""
+SELECT *
+FROM (
+    SELECT `{group_column}`,
+           {aggregate_function}(`{aggregate_column}`)
+           AS Subquery_Result
+    FROM `{selected_table}`
+    GROUP BY `{group_column}`
+) AS derived_table;
+"""
+            show_subquery_result(query)
 
 
     # ---------------- WINDOW FUNCTIONS ----------------
@@ -1658,15 +1746,11 @@ with tab10:
     function = st.selectbox(
         "Select Function",
         [
-            "YEAR",
-            "MONTH",
-            "ROUND",
-            "DAY",
-            "UPPER",
-            "LOWER",
-            "LENGTH",
-            "COALESCE",
-            "NULLIF"
+            "YEAR", "MONTH", "DAY", "DATE", "NOW()",
+            "DATE_ADD()", "DATE_SUB()", "DATEDIFF()",
+            "ROUND", "UPPER", "LOWER", "LENGTH",
+            "CONCAT", "SUBSTR", "LEFT", "RIGHT",
+            "REPLACE", "TRIM", "COALESCE", "NULLIF"
         ],
         key="sql_function"
     )
@@ -1685,32 +1769,81 @@ with tab10:
         key="function_column"
     )
 
+    # Extra inputs
     if function == "COALESCE":
-
         default_value = st.text_input(
-            "Default Value",
-            key="coalesce_value"
+            "Default Value", key="coalesce_value"
         )
 
     elif function == "NULLIF":
-
         compare_value = st.text_input(
-            "Compare Value",
-            key="nullif_value"
+            "Compare Value", key="nullif_value"
         )
-    
-    elif function == "ROUND":
-         round_digits = st.number_input(
-            "Decimal Places",
-            min_value=0,
-            max_value=10,
-            value=2,
-            key="round_digits"
-    )
 
+    elif function == "ROUND":
+        round_digits = st.number_input(
+            "Decimal Places", min_value=0,
+            max_value=10, value=2, key="round_digits"
+        )
+
+    elif function in ["DATE_ADD()", "DATE_SUB()"]:
+        days = st.number_input(
+            "Number of Days", min_value=0,
+            max_value=36500, value=7, key="date_days"
+        )
+
+    elif function == "DATEDIFF()":
+        date_options = [
+            c for c in df.columns if c != function_column
+        ] or list(df.columns)
+
+        date2_column = st.selectbox(
+            "Second Date Column",
+            date_options,
+            key="date_diff_column"
+        )
+
+    elif function == "CONCAT":
+        concat_column = st.selectbox(
+            "Second Column",
+            list(df.columns),
+            key="concat_second_column"
+        )
+        concat_separator = st.text_input(
+            "Separator (optional)",
+            key="concat_separator"
+        )
+
+    elif function == "SUBSTR":
+        start_pos = st.number_input(
+            "Start Position", min_value=1,
+            value=1, key="substr_start"
+        )
+        substr_length = st.number_input(
+            "Number of Characters", min_value=1,
+            value=3, key="substr_length"
+        )
+
+    elif function in ["LEFT", "RIGHT"]:
+        side_length = st.number_input(
+            "Number of Characters", min_value=0,
+            value=3, key="side_length"
+        )
+
+    elif function == "REPLACE":
+        old_text = st.text_input(
+            "Text to Replace", key="replace_old"
+        )
+        new_text = st.text_input(
+            "Replace With", key="replace_new"
+        )
+
+    # Generate SQL query
     if st.button("Generate Function Query"):
 
-        column = f"`{function_column}`"
+        column = (
+            "`" + str(function_column).replace("`", "``") + "`"
+        )
 
         if function == "YEAR":
             expression = f"CAST(strftime('%Y', {column}) AS INTEGER)"
@@ -1721,8 +1854,29 @@ with tab10:
         elif function == "DAY":
             expression = f"CAST(strftime('%d', {column}) AS INTEGER)"
 
+        elif function == "DATE":
+            expression = f"DATE({column})"
+
+        elif function == "NOW()":
+            expression = "DATETIME('now', 'localtime')"
+
+        elif function == "DATE_ADD()":
+            expression = f"DATE({column}, '+{int(days)} days')"
+
+        elif function == "DATE_SUB()":
+            expression = f"DATE({column}, '-{int(days)} days')"
+
+        elif function == "DATEDIFF()":
+            date2 = (
+                "`" + str(date2_column).replace("`", "``") + "`"
+            )
+            expression = (
+                f"CAST(julianday({column}) "
+                f"- julianday({date2}) AS INTEGER)"
+            )
+
         elif function == "ROUND":
-            expression = f"ROUND({column}, {round_digits})"
+            expression = f"ROUND({column}, {int(round_digits)})"
 
         elif function == "UPPER":
             expression = f"UPPER({column})"
@@ -1733,47 +1887,117 @@ with tab10:
         elif function == "LENGTH":
             expression = f"LENGTH({column})"
 
+        elif function == "CONCAT":
+            second_column = (
+                "`" + str(concat_column).replace("`", "``") + "`"
+            )
+            separator = concat_separator.replace("'", "''")
+            expression = (
+                f"COALESCE(CAST({column} AS TEXT), '') || "
+                f"'{separator}' || "
+                f"COALESCE(CAST({second_column} AS TEXT), '')"
+            )
+
+        elif function == "SUBSTR":
+            expression = (
+                f"SUBSTR({column}, {int(start_pos)}, "
+                f"{int(substr_length)})"
+            )
+
+        elif function == "LEFT":
+            expression = f"SUBSTR({column}, 1, {int(side_length)})"
+
+        elif function == "RIGHT":
+            if int(side_length) == 0:
+                expression = "''"
+            else:
+                expression = f"SUBSTR({column}, -{int(side_length)})"
+
+        elif function == "REPLACE":
+            old_safe = old_text.replace("'", "''")
+            new_safe = new_text.replace("'", "''")
+            expression = (
+                f"REPLACE({column}, '{old_safe}', '{new_safe}')"
+            )
+
+        elif function == "TRIM":
+            expression = f"TRIM({column})"
+
         elif function == "COALESCE":
-            expression = f"COALESCE({column}, '{default_value}')"
+            safe_value = default_value.replace("'", "''")
+            expression = f"COALESCE({column}, '{safe_value}')"
 
+        elif function == "NULLIF":
+            safe_value = compare_value.replace("'", "''")
+            expression = f"NULLIF({column}, '{safe_value}')"
+
+        if function == "DATEDIFF()":
+            query = f"""
+SELECT {column},
+       `{date2_column}`,
+       {expression} AS result
+FROM `{function_table}`;
+"""
         else:
-            expression = f"NULLIF({column}, '{compare_value}')"
-
-        query = f"""
-SELECT
-    {column},
-    {expression} AS result
+            query = f"""
+SELECT {column},
+       {expression} AS result
 FROM `{function_table}`;
 """
 
         st.write("### SQL Query")
-
-        st.code(
-            query,
-            language="sql"
-        )
+        st.code(query, language="sql")
 
         try:
-
-            result = pd.read_sql(
-                query,
-                conn
-            )
-
+            result = pd.read_sql(query, conn)
             st.write("### Result")
-
-            st.dataframe(
-                result,
-                use_container_width=True
-            )
-
+            st.dataframe(result, use_container_width=True)
         except Exception as e:
+            st.error(f"Query Error: {e}")
 
-            st.error(
-                f"Query Error: {e}"
-            )
+    # Product Code Cleaning Demo
+    st.divider()
+    st.subheader("Demo: Clean Inconsistent Product Codes")
 
+    demo_table = st.selectbox(
+        "Select Demo Table",
+        list(tables.keys()),
+        key="clean_demo_table"
+    )
 
+    demo_df = tables[demo_table]
+
+    product_code_col = st.selectbox(
+        "Select Product Code Column",
+        list(demo_df.columns),
+        key="clean_product_code_column"
+    )
+
+    if st.button("Preview Cleaned Product Codes"):
+
+        code_col = (
+            "`" + str(product_code_col).replace("`", "``") + "`"
+        )
+
+        query = f"""
+SELECT
+    {code_col} AS Original_Product_Code,
+    UPPER(
+        REPLACE(
+            TRIM(CAST({code_col} AS TEXT)),
+            ' ', ''
+        )
+    ) AS Clean_Product_Code
+FROM `{demo_table}`;
+"""
+
+        st.code(query, language="sql")
+
+        try:
+            result = pd.read_sql(query, conn)
+            st.dataframe(result, use_container_width=True)
+        except Exception as e:
+            st.error(f"Query Error: {e}")
 
 # SQL EDITOR
 
